@@ -1,0 +1,19 @@
+@using Serilog
+<RegularComponentWithRenderModeInheritedByParent/>
+
+@code {
+    private static int _instanceCount;
+    private readonly int _instanceId = Interlocked.Increment(ref _instanceCount);
+
+    protected override void OnInitialized()
+    {
+        base.OnInitialized();
+        Log.Information("TEMP: {Type}#{Idx}.OnInitialized", GetType().Name, _instanceId);
+    }
+
+    public void Dispose()
+    {
+        Log.Information("TEMP: {Type}#{Idx}.Dispose", GetType().Name, _instanceId);
+    }
+
+}

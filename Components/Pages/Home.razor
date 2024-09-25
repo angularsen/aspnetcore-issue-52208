@@ -2,6 +2,72 @@
 
 <PageTitle>Home</PageTitle>
 
-<h1>Hello, world!</h1>
+<h1>Test disabling pre-render on components</h1>
+<p>in a Blazor Server app with render mode <b>InteractiveServer</b> enabled globally in app.</p>
+<ul>
+    <li><b >NoPrerenderComponent</b> has disabled pre-rendering with a rendermode directive in its header</li>
+    <li><b >RegularComponentWithRenderModeSetByParent</b> has disabled pre-rendering by rendermode parameter</li>
+    <li><b >RegularComponentWithRenderModeSetByParent</b> has disabled pre-rendering by rendermode parameter</li>
+</ul>
 
-Welcome to your new app.
+<h2>Test case 1 - RenderMode.InteractiveServer used in app</h2>
+<ol>
+    <li>Uncomment `MyRenderModes.AppRenderMode` to assign `RenderMode.InteractiveServer`</li>
+    <li>Start app and load main page</li>
+    <li>Both app and components are initialized <b >twice</b>, but expected components to only initialize once due to them disabling pre-render</li>
+</ol>
+
+Example output:
+<pre>
+[15:40:54 INF] TEMP: NoPrerenderComponent#1.OnInitialized
+[15:40:54 INF] TEMP: RegularComponentWithRenderModeSetByParent#1.OnInitialized
+[15:40:54 INF] TEMP: RegularComponentWithRenderModeInheritedByParent#1.OnInitialized
+[15:40:54 INF] HTTP GET / responded 200 in 179.9469 ms
+[15:40:55 INF] HTTP POST /_blazor/disconnect responded 200 in 22.2158 ms
+[15:40:55 INF] The file /_framework/blazor.web.js was not modified
+[15:40:55 INF] The file /BlazorDisablePreRender.styles.css was not modified
+[15:40:55 INF] HTTP GET /_framework/blazor.web.js responded 304 in 5.4679 ms
+[15:40:55 INF] HTTP GET /BlazorDisablePreRender.styles.css responded 304 in 5.0189 ms
+[15:40:55 INF] HTTP GET /_blazor/initializers responded 200 in 4.6858 ms
+[15:40:55 INF] HTTP POST /_blazor/negotiate responded 200 in 7.0324 ms
+[15:40:56 INF] TEMP: NoPrerenderComponent#2.OnInitialized
+[15:40:56 INF] TEMP: RegularComponentWithRenderModeSetByParent#2.OnInitialized
+[15:40:56 INF] TEMP: RegularComponentWithRenderModeInheritedByParent#2.OnInitialized
+</pre>
+
+<h2>Test case 2 - MyRenderModes.InteractiveServerWithoutPrerendering used in app</h2>
+<ol>
+    <li>Uncomment `MyRenderModes.AppRenderMode` to assign `MyRenderModes.InteractiveServerWithoutPrerendering`</li>
+    <li>Start app and load main page</li>
+    <li>Both app and components are initialized <b >once</b>, as expected</li>
+</ol>
+
+Example output:
+<pre>
+[15:37:34 INF] HTTP GET / responded 200 in 125.2287 ms
+[15:37:35 INF] The file /_framework/blazor.web.js was not modified
+[15:37:35 INF] HTTP GET /_framework/blazor.web.js responded 304 in 12.5770 ms
+[15:37:35 INF] HTTP GET /_blazor/initializers responded 200 in 2.2067 ms
+[15:37:35 INF] HTTP POST /_blazor/negotiate responded 200 in 7.3145 ms
+[15:37:35 INF] TEMP: NoPrerenderComponent#1.OnInitialized
+[15:37:35 INF] TEMP: RegularComponentWithRenderModeSetByParent#1.OnInitialized
+[15:37:35 INF] TEMP: RegularComponentWithRenderModeInheritedByParent#1.OnInitialized
+</pre>
+
+<h2>Counter to verify render mode is interactive</h2>
+<p role="status">Current count: @currentCount</p>
+<button class="btn btn-primary" @onclick="IncrementCount">Click me</button>
+
+@code {
+    private int currentCount;
+
+    private void IncrementCount()
+    {
+        currentCount++;
+    }
+
+}
+
+
+<NoPrerenderComponent/>
+<RegularComponentWithRenderModeSetByParent @rendermode="MyRenderModes.InteractiveServerWithoutPrerendering"/>
